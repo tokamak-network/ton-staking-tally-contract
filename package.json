@@ -1,0 +1,64 @@
+{
+  "name": "ton-staking-tally-contract",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "clean": "rimraf ./artifacts ./cache ./coverage ./types ./coverage.json && pnpm typechain",
+    "compile": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat compile",
+    "coverage": "hardhat coverage --solcoverjs ./.solcover.js --temp artifacts --testfiles \"test/**/*.ts\" && pnpm typechain",
+    "typechain": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat typechain",
+    "postcompile": "pnpm typechain",
+    "prettier:check": "prettier --check \"**/*.{js,json,md,sol,ts,yml}\"",
+    "prettier:write": "prettier --write \"**/*.{js,json,md,sol,ts,yml}\"",
+    "deploy:contracts": "hardhat deploy  --reset",
+    "deployc": "pnpm deploy:contracts",
+    "test": "hardhat test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tokamak-network/ton-staking-tally-contract.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tokamak-network/ton-staking-tally-contract/issues"
+  },
+  "homepage": "https://github.com/tokamak-network/ton-staking-tally-contract#readme",
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.2",
+    "@openzeppelin/contracts-upgradeable": "^5.0.2"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
+    "@nomicfoundation/hardhat-ethers": "^3.0.6",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.6",
+    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.0",
+    "@openzeppelin/contracts": "5.0.2",
+    "@openzeppelin/hardhat-upgrades": "^3.2.0",
+    "@typechain/ethers-v6": "^0.4.0",
+    "@typechain/hardhat": "^8.0.0",
+    "@types/chai": "^4.2.0",
+    "@types/mocha": ">=9.1.0",
+    "chai": "^4.3.6",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.0.1",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-n": "^16.4.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "ethers": "^6.13.1",
+    "hardhat": "^2.19.0",
+    "hardhat-deploy": "^0.11.29",
+    "hardhat-gas-reporter": "^1.0.9",
+    "prettier": "^2.8.4",
+    "prettier-plugin-solidity": "^1.1.2",
+    "rimraf": "^4.1.2",
+    "solhint": "^3.4.0",
+    "solhint-plugin-prettier": "^0.0.5",
+    "solidity-coverage": "^0.8.5",
+    "ts-node": "^10.9.1",
+    "typechain": "^8.2.0",
+    "typescript": "^4.9.3"
+  }
+}
