@@ -5,8 +5,8 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 
 import type { Signers } from "../types";
 
-import { deployGovernanceContractsClockTimestampFixture, deployGovernanceContractsFixture } from "./Governance.fixture";
-import { shouldBehaveLikeGovernor, shouldBehaveLikeGovernorWithTimestamp } from "./Goverance.behavior";
+import { deployGovernanceContractsFixture } from "./Governance.fixture";
+import { shouldBehaveLikeGovernor } from "./Goverance.behavior";
 
 describe("TokamakGovernor", async function () {
     before(async function () {
@@ -27,4 +27,5 @@ describe("TokamakGovernor", async function () {
     });
 
     shouldBehaveLikeGovernor();
+
 });

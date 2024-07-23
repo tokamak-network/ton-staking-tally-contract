@@ -5,7 +5,7 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts-upgradeable/governance/GovernorUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorSettingsUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorCountingSimpleUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorStorageUpgradeable.sol";
+// import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorStorageUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesQuorumFractionUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorTimelockControlUpgradeable.sol";
@@ -17,7 +17,7 @@ contract TokamakGovernor is
     GovernorUpgradeable,
     GovernorSettingsUpgradeable,
     GovernorCountingSimpleUpgradeable,
-    GovernorStorageUpgradeable,
+    // GovernorStorageUpgradeable,
     GovernorVotesUpgradeable,
     GovernorPreventLateQuorumUpgradeable,
     GovernorVotesQuorumFractionUpgradeable,
@@ -44,7 +44,7 @@ contract TokamakGovernor is
         // __GovernorSettings_init(7200 /* 1 day */, 50400 /* 1 week */, 0);
         __GovernorSettings_init(initialVotingDelay, initialVotingPeriod, initialProposalThreshold);
         __GovernorCountingSimple_init();
-        __GovernorStorage_init();
+        // __GovernorStorage_init();
         __GovernorVotes_init(_token);
         // __GovernorVotesQuorumFraction_init(4);
         __GovernorVotesQuorumFraction_init(quorumNumeratorValue);
@@ -110,7 +110,8 @@ contract TokamakGovernor is
 
     function _propose(address[] memory targets, uint256[] memory values, bytes[] memory calldatas, string memory description, address proposer)
         internal
-        override(GovernorUpgradeable, GovernorStorageUpgradeable)
+        // override(GovernorUpgradeable, GovernorStorageUpgradeable)
+         override(GovernorUpgradeable)
         returns (uint256)
     {
         return super._propose(targets, values, calldatas, description, proposer);

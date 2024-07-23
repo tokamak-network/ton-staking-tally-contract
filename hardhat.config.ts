@@ -8,23 +8,23 @@ dotenv.config();
 const config: HardhatUserConfig = {
   networks: {
     hardhat: {
-      // forking: {
-      //   url: `${process.env.ETH_NODE_URI_sepolia}`,
-      //   blockNumber: 5859537
-      // },
+      forking: {
+        url: `${process.env.ETHEREUM_URL}`,
+        blockNumber: 20366882
+      },
     },
   },
   gasReporter: {
     enabled: true,
     currency: 'USD',
-    gasPrice: 21,
+    gasPrice: 10,
     coinmarketcap: `${process.env.COINMARKETCAP_API_KEY}`
   },
   solidity: {
     version: '0.8.24',
     settings: {
       // evmVersion: "cancun",
-      viaIR: true,
+      // viaIR: true,
       optimizer: {
         enabled: true,
         runs: 200,
