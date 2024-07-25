@@ -23,26 +23,38 @@ import SeigManagerV1_2_Json from './abi/SeigManagerV1_2.json'
 import SeigManagerV1_Vote_Json from './abi/SeigManagerV1_Vote.json'
 import DAOCommitteeAddV1_1_Json from './abi/DAOCommitteeAddV1_1.json'
 import DAOCommitteeProxy_Json from './abi/DAOCommitteeProxy.json'
+import TON_Json from './abi/TON.json'
+import TOS_Json from './abi/TOS.json'
 
 const daoOwnerAddress = "0xB4983DA083A5118C903910DB4f5a480B1D9f3687"
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
 
 export async function tonStakingV2ContractsFixture(): Promise<{
-    token: TokamakVoteERC20;
+    tokamaktoken: TokamakVoteERC20;
     timelock: TokamakTimelockController;
     governor: TokamakGovernor;
     depositManager: DepositManager;
     seigManagerProxy: SeigManagerProxy;
     seigManager: SeigManagerV1_2;
     seigManagerV1_Vote: SeigManagerV1_Vote;
+    dao: Contract;
+    ton: Contract;
+    tos: Contract;
+    stakingHolder: Signer
 }> {
     const signers = await ethers.getSigners();
     const deployerSigner = signers[0];
+    const adminSigner = signers[1];
     let daoOwner: Signer;
+    let stakingHolder: Signer;
 
     await network.provider.send("hardhat_impersonateAccount", [ daoOwnerAddress, ]);
     await network.provider.send("hardhat_setBalance", [ daoOwnerAddress,  "0x10000000000000000000000000", ]);
     daoOwner = await ethers.getSigner(daoOwnerAddress);
+
+    await network.provider.send("hardhat_impersonateAccount", [ tonStakingV2Config.StakingHolder, ]);
+    await network.provider.send("hardhat_setBalance", [ tonStakingV2Config.StakingHolder,  "0x10000000000000000000000000", ]);
+    stakingHolder =  await ethers.getSigner(tonStakingV2Config.StakingHolder);
 
     // Load values for constructor from a ts file tonStakingV2Config.config.ts
     const seigManager_address = tonStakingV2Config.SeigManagerProxy;
@@ -54,6 +66,8 @@ export async function tonStakingV2ContractsFixture(): Promise<{
     const seigManagerProxy = (new ethers.Contract(seigManager_address,  SeigManagerProxy_Json.abi, deployerSigner)) as SeigManagerProxy;
     const seigManager = (new ethers.Contract(seigManager_address,  SeigManagerV1_2_Json.abi, deployerSigner)) as SeigManagerV1_2;
     const daoProxy = new ethers.Contract(dao_address, DAOCommitteeProxy_Json.abi, deployerSigner);
+    const ton = new ethers.Contract(tonStakingV2Config.TON, TON_Json.abi, deployerSigner);
+    const tos = new ethers.Contract(tonStakingV2Config.TOS, TOS_Json.abi, deployerSigner);
 
     //-- dao
     const dao_Contract = await (new ethers.ContractFactory(DAOCommitteeAddV1_1_Json.abi, DAOCommitteeAddV1_1_Json.bytecode, deployerSigner)).connect(deployerSigner).deploy() ;
@@ -121,19 +135,20 @@ export async function tonStakingV2ContractsFixture(): Promise<{
 
     //=========================== ==========
     // TOKEN CONTRACT
-    const GovernorToken = (await ethers.getContractFactory("contracts/TokamakVoteERC20.sol:TokamakVoteERC20")) as TokamakVoteERC20__factory
+    const TokamakVoteERC20 = (await ethers.getContractFactory("contracts/TokamakVoteERC20.sol:TokamakVoteERC20")) as TokamakVoteERC20__factory
 
-    const token = await upgrades.deployProxy(
-        GovernorToken,
+    const tokamaktoken = await upgrades.deployProxy(
+        TokamakVoteERC20,
         [
             config.token.name,
             config.token.symbol,
-            deployerSigner.address,
-            deployerSigner.address,
-            deployerSigner.address,
+            adminSigner.address, // admin
+            adminSigner.address, // pauser
+            adminSigner.address, // minter
+            seigManager_address // seigManager
         ]
     );
-    await token.waitForDeployment();
+    await tokamaktoken.waitForDeployment();
     // console.log('token deployed to:', await token.getAddress());
 
     // TIMELOCK CONTRACT
@@ -175,5 +190,5 @@ export async function tonStakingV2ContractsFixture(): Promise<{
 
     const seigManagerV1_Vote = (new ethers.Contract(seigManager_address, SeigManagerV1_Vote_Json.abi, deployerSigner)) as SeigManagerV1_Vote;
 
-    return {  token, timelock, governor, depositManager, seigManagerProxy, seigManager, seigManagerV1_Vote };
+    return {  tokamaktoken, timelock, governor, depositManager, seigManagerProxy, seigManager, seigManagerV1_Vote, dao, ton, tos, stakingHolder };
 }

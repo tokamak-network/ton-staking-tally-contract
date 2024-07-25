@@ -4,12 +4,12 @@ import { ethers, upgrades} from "hardhat";
 
 import { getExpectedContractAddress } from "../../helpers/expected_contract";
 
-import { type TokamakGovernor, type TokamakTimelockController, type TokamakVoteERC20, } from "../../typechain-types";
+import { type TokamakGovernor, type TokamakTimelockController, type VoteERC20, } from "../../typechain-types";
 import { config } from "../../deploy.config"
-import { TokamakTimelockController__factory, TokamakVoteERC20__factory, TokamakGovernor__factory } from "../../typechain-types/factories/contracts";
+import { TokamakTimelockController__factory, VoteERC20__factory, TokamakGovernor__factory } from "../../typechain-types/factories/contracts";
 
 export async function deployGovernanceContractsFixture(): Promise<{
-    token: TokamakVoteERC20;
+    token: VoteERC20;
     timelock: TokamakTimelockController;
     governor: TokamakGovernor;
 }> {
@@ -26,7 +26,7 @@ export async function deployGovernanceContractsFixture(): Promise<{
     const admin_address = governance_address;
 
     // TOKEN CONTRACT
-    const GovernorToken = (await ethers.getContractFactory("contracts/TokamakVoteERC20.sol:TokamakVoteERC20")) as TokamakVoteERC20__factory
+    const GovernorToken = (await ethers.getContractFactory("contracts/VoteERC20.sol:VoteERC20")) as VoteERC20__factory
 
     const token = await upgrades.deployProxy(
         GovernorToken,

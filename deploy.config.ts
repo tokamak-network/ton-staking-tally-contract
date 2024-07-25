@@ -2,8 +2,8 @@ export const config:any = {
     // Configuration for the deployment
     // Change the values for a more personalized deployment
     token: {
-      name: "WE LOVE TALLY TOKEN",
-      symbol: "WLTT",
+      name: "TOKAMAK VOTE TOKEN",
+      symbol: "TVT",
     },
     // Timelock
     timelock: {
