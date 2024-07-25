@@ -7,30 +7,17 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20Pausable
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PermitUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20VotesUpgradeable.sol";
-import "./TokamakVotesUpgradeable.sol";
-
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 error NotSupported();
-error ZeroAddressError();
-error ZeroSeigManagerError();
-error ZeroValueError();
-error InsufficientStakedAmount();
 
-interface ISeigManager {
-    function increaseVoteToken(address account, uint256 amount) external;
-    function decreaseVoteToken(address account, uint256 amount) external;
-    function availableRequestWithdraw(address account) external view returns (uint256 amount);
-}
-
-contract TokamakVoteERC20 is
+contract VoteERC20 is
     Initializable,
     ERC20Upgradeable,
     ERC20PausableUpgradeable,
     AccessControlUpgradeable,
     ERC20PermitUpgradeable,
-    ERC20VotesUpgradeable,
-    TokamakVotesUpgradeable
+    ERC20VotesUpgradeable
 {
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
@@ -46,27 +33,18 @@ contract TokamakVoteERC20 is
         string memory symbol_,
         address admin,
         address pauser,
-        address minter,
-        address seigManager_
+        address minter
     )
         initializer public
     {
-        if (seigManager_ == address(0)) revert ZeroSeigManagerError();
-
         __ERC20_init(name_, symbol_);
         __ERC20Pausable_init();
         __AccessControl_init();
         __ERC20Permit_init(name_);
         __ERC20Votes_init();
-        __TokamakVotes_init(seigManager_);
         if (admin != address(0)) _grantRole(DEFAULT_ADMIN_ROLE, admin);
         if (pauser != address(0)) _grantRole(PAUSER_ROLE, admin);
         if (minter != address(0)) _grantRole(MINTER_ROLE, admin);
-    }
-
-    function setSeigManager(address account) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        if (account == address(0)) revert ZeroAddressError();
-        _setSeigManager(account);
     }
 
     /**
@@ -83,27 +61,15 @@ contract TokamakVoteERC20 is
         _unpause();
     }
 
-    function mint(uint256 amount) public whenNotPaused {
-        address to = msg.sender;
-        _noneZeroValue(amount);
-        uint256 availableAmount = _mintableAmount(to);
-        if (availableAmount < amount) revert InsufficientStakedAmount();
-        ISeigManager(seigManager()).increaseVoteToken(to, amount);
+    /**
+     * @notice Mints new tokens and assigns them to the specified address.
+     * @param to The address to receive the minted tokens.
+     * @param amount The amount of tokens to mint.
+     */
+    function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) whenNotPaused {
         _mint(to, amount);
     }
 
-    function mintableAmount(address account) public view returns(uint256 amount) {
-        return _mintableAmount(account);
-    }
-
-    function _mintableAmount(address account) internal view returns(uint256 amount) {
-        amount = ISeigManager(seigManager()).availableRequestWithdraw(account);
-        if (amount != 0) amount = amount / 1e9;
-    }
-
-    function _noneZeroValue(uint256 amount) internal pure {
-        if (amount == 0) revert ZeroValueError();
-    }
 
     function decimals() public pure override returns (uint8) {
         return 27;
