@@ -30,6 +30,7 @@ export interface ITargetInterface extends utils.Interface {
     "setLayer2Manager(address)": FunctionFragment;
     "setLayer2StartBlock(uint256)": FunctionFragment;
     "setSelectorImplementations2(bytes4[],address)": FunctionFragment;
+    "setVoteToken(address)": FunctionFragment;
   };
 
   getFunction(
@@ -39,6 +40,7 @@ export interface ITargetInterface extends utils.Interface {
       | "setLayer2Manager"
       | "setLayer2StartBlock"
       | "setSelectorImplementations2"
+      | "setVoteToken"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -65,6 +67,10 @@ export interface ITargetInterface extends utils.Interface {
     functionFragment: "setSelectorImplementations2",
     values: [PromiseOrValue<BytesLike>[], PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "setVoteToken",
+    values: [PromiseOrValue<string>]
+  ): string;
 
   decodeFunctionResult(
     functionFragment: "setImplementation2",
@@ -84,6 +90,10 @@ export interface ITargetInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setSelectorImplementations2",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setVoteToken",
     data: BytesLike
   ): Result;
 
@@ -144,6 +154,11 @@ export interface ITarget extends BaseContract {
       _imp: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    setVoteToken(
+      voteToken_: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
   };
 
   setImplementation2(
@@ -174,6 +189,11 @@ export interface ITarget extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setVoteToken(
+    voteToken_: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   callStatic: {
     setImplementation2(
       newImplementation: PromiseOrValue<string>,
@@ -200,6 +220,11 @@ export interface ITarget extends BaseContract {
     setSelectorImplementations2(
       _selectors: PromiseOrValue<BytesLike>[],
       _imp: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setVoteToken(
+      voteToken_: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -234,6 +259,11 @@ export interface ITarget extends BaseContract {
       _imp: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    setVoteToken(
+      voteToken_: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -262,6 +292,11 @@ export interface ITarget extends BaseContract {
     setSelectorImplementations2(
       _selectors: PromiseOrValue<BytesLike>[],
       _imp: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setVoteToken(
+      voteToken_: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

@@ -85,6 +85,7 @@ export interface DAOCommitteeAddV1_1Interface extends utils.Interface {
     "setTargetSetL2Registry(address,address)": FunctionFragment;
     "setTargetSetLayer2Manager(address,address)": FunctionFragment;
     "setTargetSetSelectorImplementations2(address,bytes4[],address)": FunctionFragment;
+    "setVoteToken(address,address)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "ton()": FunctionFragment;
     "wton()": FunctionFragment;
@@ -124,6 +125,7 @@ export interface DAOCommitteeAddV1_1Interface extends utils.Interface {
       | "setTargetSetL2Registry"
       | "setTargetSetLayer2Manager"
       | "setTargetSetSelectorImplementations2"
+      | "setVoteToken"
       | "supportsInterface"
       | "ton"
       | "wton"
@@ -258,6 +260,10 @@ export interface DAOCommitteeAddV1_1Interface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "setVoteToken",
+    values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -360,6 +366,10 @@ export interface DAOCommitteeAddV1_1Interface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setTargetSetSelectorImplementations2",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setVoteToken",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -597,6 +607,12 @@ export interface DAOCommitteeAddV1_1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    setVoteToken(
+      target: PromiseOrValue<string>,
+      _voteToken: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     supportsInterface(
       interfaceId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -745,6 +761,12 @@ export interface DAOCommitteeAddV1_1 extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  setVoteToken(
+    target: PromiseOrValue<string>,
+    _voteToken: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   supportsInterface(
     interfaceId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -890,6 +912,12 @@ export interface DAOCommitteeAddV1_1 extends BaseContract {
       target: PromiseOrValue<string>,
       _selectors: PromiseOrValue<BytesLike>[],
       _imp: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setVoteToken(
+      target: PromiseOrValue<string>,
+      _voteToken: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1088,6 +1116,12 @@ export interface DAOCommitteeAddV1_1 extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    setVoteToken(
+      target: PromiseOrValue<string>,
+      _voteToken: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     supportsInterface(
       interfaceId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1240,6 +1274,12 @@ export interface DAOCommitteeAddV1_1 extends BaseContract {
       target: PromiseOrValue<string>,
       _selectors: PromiseOrValue<BytesLike>[],
       _imp: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setVoteToken(
+      target: PromiseOrValue<string>,
+      _voteToken: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

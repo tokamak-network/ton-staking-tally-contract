@@ -70,6 +70,9 @@ contract VoteERC20 is
         _mint(to, amount);
     }
 
+    function _burn(uint256 amount) public whenNotPaused {
+        _burn(msg.sender, amount);
+    }
 
     function decimals() public pure override returns (uint8) {
         return 27;

@@ -21,6 +21,7 @@ interface ISeigManager {
     function increaseVoteToken(address account, uint256 amount) external;
     function decreaseVoteToken(address account, uint256 amount) external;
     function availableRequestWithdraw(address account) external view returns (uint256 amount);
+    function stakeOfTotal() external view returns (uint256 amount);
 }
 
 contract TokamakVoteERC20 is
@@ -92,6 +93,14 @@ contract TokamakVoteERC20 is
         _mint(to, amount);
     }
 
+    function burn(uint256 amount) public whenNotPaused {
+        address to = msg.sender;
+        _noneZeroValue(amount);
+        require(balanceOf(to) >= amount, "Insufficient balance");
+        ISeigManager(seigManager()).decreaseVoteToken(to, amount);
+        _burn(msg.sender, amount);
+    }
+
     function mintableAmount(address account) public view returns(uint256 amount) {
         return _mintableAmount(account);
     }
@@ -106,7 +115,7 @@ contract TokamakVoteERC20 is
     }
 
     function decimals() public pure override returns (uint8) {
-        return 27;
+        return 18;
     }
 
     function balanceOf(address account) public view override returns (uint256) {

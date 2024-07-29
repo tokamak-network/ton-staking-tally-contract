@@ -94,6 +94,7 @@ export interface SeigManagerV1_VoteInterface extends utils.Interface {
     "revokeRole(bytes32,address)": FunctionFragment;
     "seigStartBlock()": FunctionFragment;
     "selectorImplementation(bytes4)": FunctionFragment;
+    "setVoteToken(address)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "totalLayer2TVL()": FunctionFragment;
     "totalVotes()": FunctionFragment;
@@ -170,6 +171,7 @@ export interface SeigManagerV1_VoteInterface extends utils.Interface {
       | "revokeRole"
       | "seigStartBlock"
       | "selectorImplementation"
+      | "setVoteToken"
       | "supportsInterface"
       | "totalLayer2TVL"
       | "totalVotes"
@@ -429,6 +431,10 @@ export interface SeigManagerV1_VoteInterface extends utils.Interface {
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
+    functionFragment: "setVoteToken",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "supportsInterface",
     values: [PromiseOrValue<BytesLike>]
   ): string;
@@ -664,6 +670,10 @@ export interface SeigManagerV1_VoteInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setVoteToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "supportsInterface",
     data: BytesLike
   ): Result;
@@ -689,6 +699,7 @@ export interface SeigManagerV1_VoteInterface extends utils.Interface {
     "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
     "RoleGranted(bytes32,address,address)": EventFragment;
     "RoleRevoked(bytes32,address,address)": EventFragment;
+    "SetVoteToken(address)": EventFragment;
     "UnstakeLog(uint256,uint256)": EventFragment;
   };
 
@@ -697,6 +708,7 @@ export interface SeigManagerV1_VoteInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SetVoteToken"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UnstakeLog"): EventFragment;
 }
 
@@ -760,6 +772,13 @@ export type RoleRevokedEvent = TypedEvent<
 >;
 
 export type RoleRevokedEventFilter = TypedEventFilter<RoleRevokedEvent>;
+
+export interface SetVoteTokenEventObject {
+  voteToken_: string;
+}
+export type SetVoteTokenEvent = TypedEvent<[string], SetVoteTokenEventObject>;
+
+export type SetVoteTokenEventFilter = TypedEventFilter<SetVoteTokenEvent>;
 
 export interface UnstakeLogEventObject {
   coinageBurnAmount: BigNumber;
@@ -1042,6 +1061,11 @@ export interface SeigManagerV1_Vote extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    setVoteToken(
+      voteToken_: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     supportsInterface(
       interfaceId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1310,6 +1334,11 @@ export interface SeigManagerV1_Vote extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  setVoteToken(
+    voteToken_: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   supportsInterface(
     interfaceId: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
@@ -1570,6 +1599,11 @@ export interface SeigManagerV1_Vote extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    setVoteToken(
+      voteToken_: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     supportsInterface(
       interfaceId: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
@@ -1648,6 +1682,9 @@ export interface SeigManagerV1_Vote extends BaseContract {
       account?: PromiseOrValue<string> | null,
       sender?: PromiseOrValue<string> | null
     ): RoleRevokedEventFilter;
+
+    "SetVoteToken(address)"(voteToken_?: null): SetVoteTokenEventFilter;
+    SetVoteToken(voteToken_?: null): SetVoteTokenEventFilter;
 
     "UnstakeLog(uint256,uint256)"(
       coinageBurnAmount?: null,
@@ -1897,6 +1934,11 @@ export interface SeigManagerV1_Vote extends BaseContract {
     selectorImplementation(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    setVoteToken(
+      voteToken_: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     supportsInterface(
@@ -2180,6 +2222,11 @@ export interface SeigManagerV1_Vote extends BaseContract {
     selectorImplementation(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    setVoteToken(
+      voteToken_: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     supportsInterface(

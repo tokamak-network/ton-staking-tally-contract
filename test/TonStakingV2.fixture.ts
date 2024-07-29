@@ -8,7 +8,7 @@ import { tonStakingV2Config } from "../tostakingv2.config"
 import { getExpectedContractAddress } from "../helpers/expected_contract";
 
 import { type TokamakGovernor, type TokamakTimelockController, type TokamakVoteERC20, } from "../typechain-types";
-import { config } from "../deploy.config"
+import { config } from "../deploy.tokamak.tally.config"
 import { TokamakTimelockController__factory, TokamakVoteERC20__factory, TokamakGovernor__factory } from "../typechain-types/factories/contracts";
 
 import { SeigManagerV1_3 } from "./types/contracts/stake/managers/SeigManagerV1_3.sol/SeigManagerV1_3";
@@ -92,8 +92,11 @@ export async function tonStakingV2ContractsFixture(): Promise<{
     const selector3 = encodeFunctionSignature("onWithdraw(address,address,uint256)");
     const selector4 = encodeFunctionSignature("availableRequestWithdraw(address)");
     const selector5 = encodeFunctionSignature("setVoteToken(address)");
+    const selector6 = encodeFunctionSignature("votes(address)");
+    const selector7 = encodeFunctionSignature("voteToken()");
+    const selector8 = encodeFunctionSignature("totalVotes()");
 
-    let functionBytecodes = [selector1, selector2, selector3, selector4, selector5 ];
+    let functionBytecodes = [selector1, selector2, selector3, selector4, selector5, selector6, selector7, selector8];
 
     // mainnet
     await (await dao.connect(daoOwner).setTargetSetImplementation2(
@@ -135,7 +138,7 @@ export async function tonStakingV2ContractsFixture(): Promise<{
 
     //=========================== ==========
     // TOKEN CONTRACT
-    const TokamakVoteERC20 = (await ethers.getContractFactory("contracts/TokamakVoteERC20.sol:TokamakVoteERC20")) as TokamakVoteERC20__factory
+    const TokamakVoteERC20:TokamakVoteERC20__factory = (await ethers.getContractFactory("contracts/TokamakVoteERC20.sol:TokamakVoteERC20")) as TokamakVoteERC20__factory
 
     const tokamaktoken = await upgrades.deployProxy(
         TokamakVoteERC20,
