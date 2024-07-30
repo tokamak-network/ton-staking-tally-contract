@@ -26,10 +26,6 @@ describe("TokamakGovernor basic functionality", async function () {
         this.signers.admin = signers[1];
         this.signers.notAuthorized = signers[2];
 
-        // console.log("deployer ", this.deployer.address)
-        // console.log("admin ", this.signers.admin.address)
-        // console.log("notAuthorized ", this.signers.notAuthorized.address)
-
         this.loadFixture = loadFixture;
     });
 
@@ -55,8 +51,6 @@ describe("TokamakGovernor basic functionality", async function () {
         this.ton = ton;
         this.tos = tos;
         this.stakingHolder = stakingHolder;
-
-        // console.log("daoAddress", daoAddress)
 
         await network.provider.send("hardhat_impersonateAccount", [ daoAddress, ]);
         await network.provider.send("hardhat_setBalance", [ daoAddress,  "0x10000000000000000000000000", ]);

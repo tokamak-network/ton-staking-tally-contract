@@ -126,19 +126,14 @@ export async function tonStakingV2ContractsFixture(): Promise<{
     expect(await seigManagerProxy.getSelectorImplementation2(selector3)).to.be.eq(seigManagerV1_Vote_address)
     expect(await seigManagerProxy.getSelectorImplementation2(selector4)).to.be.eq(seigManagerV1_Vote_address)
 
-    const governance_address = await getExpectedContractAddress(deployerSigner, 5);
-    const timelock_address = await getExpectedContractAddress(deployerSigner, 3);
-    const token_address = await getExpectedContractAddress(deployerSigner, 1);
-
-    const admin_address = governance_address;
-
-    // console.log('governance_address', governance_address)
-    // console.log('timelock_address', timelock_address)
-    // console.log('token_address', token_address)
 
     //=========================== ==========
     // TOKEN CONTRACT
     const TokamakVoteERC20:TokamakVoteERC20__factory = (await ethers.getContractFactory("contracts/TokamakVoteERC20.sol:TokamakVoteERC20")) as TokamakVoteERC20__factory
+    // TIMELOCK CONTRACT
+    const TimelockController:TokamakTimelockController__factory =  (await ethers.getContractFactory("contracts/TokamakTimelockController.sol:TokamakTimelockController")) as TokamakTimelockController__factory
+    // GOVERNOR CONTRACT
+    const TokamakGovernor:TokamakGovernor__factory = (await ethers.getContractFactory("contracts/TokamakGovernor.sol:TokamakGovernor")) as TokamakGovernor__factory
 
     const tokamaktoken = await upgrades.deployProxy(
         TokamakVoteERC20,
@@ -152,10 +147,27 @@ export async function tonStakingV2ContractsFixture(): Promise<{
         ]
     );
     await tokamaktoken.waitForDeployment();
-    // console.log('token deployed to:', await token.getAddress());
+    // console.log('token deployed to:', await tokamaktoken.getAddress());
+    const token_address = await tokamaktoken.getAddress()
 
-    // TIMELOCK CONTRACT
-    const TimelockController:TokamakTimelockController__factory =  (await ethers.getContractFactory("contracts/TokamakTimelockController.sol:TokamakTimelockController")) as TokamakTimelockController__factory
+    // const a0 = await getExpectedContractAddress(deployerSigner, 0);
+    // console.log('a0', a0)
+    // const a1 = await getExpectedContractAddress(deployerSigner, 1);
+    // const a2 = await getExpectedContractAddress(deployerSigner, 2);
+    // const a3 = await getExpectedContractAddress(deployerSigner, 3);
+    // const a4 = await getExpectedContractAddress(deployerSigner, 4);
+    // console.log('a1', a1)
+    // console.log('a2', a2)
+    // console.log('a3', a3)
+    // console.log('a4', a4)
+
+    // npx hardhat test 으로 테스트할때, 아래 파라미터를 0 , 1 로 수정해야 함.
+    let timelock_address = await getExpectedContractAddress(deployerSigner, 1);
+    // console.log('timelock_address', timelock_address)
+    let governance_address = await getExpectedContractAddress(deployerSigner,3);
+    // console.log('governance_address', governance_address)
+
+    const admin_address = governance_address;
 
     const timelock = await upgrades.deployProxy(
         TimelockController,
@@ -168,9 +180,7 @@ export async function tonStakingV2ContractsFixture(): Promise<{
     );
     await timelock.waitForDeployment();
     // console.log('timelock deployed to:', await timelock.getAddress());
-
-    // GOVERNOR CONTRACT
-    const TokamakGovernor = (await ethers.getContractFactory("contracts/TokamakGovernor.sol:TokamakGovernor")) as TokamakGovernor__factory
+    if(timelock_address != await timelock.getAddress())  console.log('check!!!: timelock address');
 
     const governor = await upgrades.deployProxy(
         TokamakGovernor,
@@ -187,6 +197,7 @@ export async function tonStakingV2ContractsFixture(): Promise<{
     );
     await governor.waitForDeployment();
     // console.log('governor deployed to:', await governor.getAddress());
+    if(governance_address != await governor.getAddress())  console.log('check!!!: governance_address address');
 
     //=================
     await (await dao.connect(daoOwner).setVoteToken(seigManager_address, token_address)).wait();
