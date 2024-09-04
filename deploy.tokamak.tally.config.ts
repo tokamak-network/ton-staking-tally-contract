@@ -21,8 +21,8 @@ export const config:any = {
       // Quorum numerator to denominator of 100
       quorumNumerator: 4,
       // Threshold to be able to propose
-      // 100 TON
-      proposalThreshold: 100000000000000000000n, // Set a non-zero value to prevent proposal spam.
+      // getVotes(proposer): QV must be greater than ProposalThreshold.
+      proposalThreshold: 10000000000n, // Set a non-zero value to prevent proposal spam.
       // Vote extension: if a late quorum is reached, how long should it be extended?
       voteExtension: 7200, // 7200 is 24 hours (assuming 12 seconds per block)
     },

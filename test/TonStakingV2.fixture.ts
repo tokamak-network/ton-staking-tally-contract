@@ -10,6 +10,7 @@ import { getExpectedContractAddress } from "../helpers/expected_contract";
 import { type TokamakGovernor, type TokamakTimelockController, type TokamakVoteERC20, } from "../typechain-types";
 import { config } from "../deploy.tokamak.tally.config"
 import { TokamakTimelockController__factory, TokamakVoteERC20__factory, TokamakGovernor__factory } from "../typechain-types/factories/contracts";
+import { LibUtil  } from "../typechain-types/contracts";
 
 import { SeigManagerV1_3 } from "./types/contracts/stake/managers/SeigManagerV1_3.sol/SeigManagerV1_3";
 import { SeigManagerProxy } from "./types/contracts/stake/managers/SeigManagerProxy";
@@ -128,12 +129,22 @@ export async function tonStakingV2ContractsFixture(): Promise<{
 
 
     //=========================== ==========
-    // TOKEN CONTRACT
-    const TokamakVoteERC20:TokamakVoteERC20__factory = (await ethers.getContractFactory("contracts/TokamakVoteERC20.sol:TokamakVoteERC20")) as TokamakVoteERC20__factory
+    const utilsDep =  (await (await ethers.getContractFactory("LibUtil")).deploy()) as Utils
+    console.log('utilsDep', utilsDep.target)
+
+    const TokamakVoteERC20:TokamakVoteERC20__factory = (
+        await ethers.getContractFactory(
+            "contracts/TokamakVoteERC20.sol:TokamakVoteERC20",
+            { libraries: { "LibUtil" : utilsDep.target} }
+        )
+    ) as TokamakVoteERC20__factory
+
     // TIMELOCK CONTRACT
     const TimelockController:TokamakTimelockController__factory =  (await ethers.getContractFactory("contracts/TokamakTimelockController.sol:TokamakTimelockController")) as TokamakTimelockController__factory
     // GOVERNOR CONTRACT
-    const TokamakGovernor:TokamakGovernor__factory = (await ethers.getContractFactory("contracts/TokamakGovernor.sol:TokamakGovernor")) as TokamakGovernor__factory
+    const TokamakGovernor:TokamakGovernor__factory = (
+        await ethers.getContractFactory("contracts/TokamakGovernor.sol:TokamakGovernor",
+        { libraries: { "LibUtil" : utilsDep.target} })) as TokamakGovernor__factory
 
     const tokamaktoken = await upgrades.deployProxy(
         TokamakVoteERC20,
@@ -144,7 +155,8 @@ export async function tonStakingV2ContractsFixture(): Promise<{
             adminSigner.address, // pauser
             adminSigner.address, // minter
             seigManager_address // seigManager
-        ]
+        ],
+        {unsafeAllowLinkedLibraries: true}
     );
     await tokamaktoken.waitForDeployment();
     // console.log('token deployed to:', await tokamaktoken.getAddress());
@@ -193,7 +205,8 @@ export async function tonStakingV2ContractsFixture(): Promise<{
             config.governor.proposalThreshold,
             config.governor.quorumNumerator,
             config.governor.voteExtension,
-        ]
+        ],
+        {unsafeAllowLinkedLibraries: true}
     );
     await governor.waitForDeployment();
     // console.log('governor deployed to:', await governor.getAddress());

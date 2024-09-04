@@ -172,18 +172,37 @@ describe("TokamakGovernor basic functionality", async function () {
 
     it("A proposal can be submitted only if the number of voting rights is equal or greater than proposalThreshold.", async function () {
         const { tokamaktoken, governor, signers, timelock } = this;
-        const proposalThreshold = await governor.proposalThreshold()
+        const proposalThreshold = await governor.proposalThreshold() // for voting unit
 
-        const mintVotesAmount = proposalThreshold - 1000n
+        const mintAmount = proposalThreshold*proposalThreshold - 1000n
+
+        // const mintAmount = proposalThreshold*proposalThreshold
+
         let holder_address = await this.stakingHolder.getAddress()
         let mintableAmount = await tokamaktoken.mintableAmount(holder_address)
-        // expect(mintableAmount).to.be.lt(Number.parseInt(proposalThreshold.toString())) //
+
+        expect(mintableAmount).to.be.gte(ethers.toBigInt(mintAmount.toString())) //
 
         // The number of votes is less than proposalThreshold
-        await tokamaktoken.connect(this.stakingHolder).mint(mintVotesAmount);
+        await tokamaktoken.connect(this.stakingHolder).mint(mintAmount);
+        // console.log('mintAmount', ethers.formatEther(mintAmount))
+
+        let balance = await tokamaktoken.balanceOf(this.stakingHolder.address)
+        expect(mintAmount).to.be.eq(balance)
+        // console.log('balance', ethers.formatEther(balance))
+
+        let sqrt = await tokamaktoken.sqrt(balance)
+        // console.log('sqrt', ethers.formatEther(sqrt))
+
+        let votesAmountPrev = await tokamaktoken.getVotes(this.stakingHolder.address)
+        // console.log('votesAmount Before delegating', ethers.formatEther(votesAmountPrev))
 
         // delegate - Delegates votes from the sender to `delegatee`.
         await tokamaktoken.connect(this.stakingHolder).delegate(this.stakingHolder.address);
+
+        let votesAmountAfter = await tokamaktoken.getVotes(this.stakingHolder.address)
+        expect(votesAmountAfter).to.be.eq(votesAmountPrev + (sqrt))
+        // console.log('votesAmount After delegating', ethers.formatEther(votesAmountAfter))
 
         //===============================
         // agenda : mint 1000 ton to admin
@@ -204,8 +223,7 @@ describe("TokamakGovernor basic functionality", async function () {
             proposalInfo.calldata,
             proposalInfo.description// description
         )).to.be.rejectedWith(
-            "GovernorInsufficientProposerVotes(\""+this.stakingHolder.address+"\", "+mintVotesAmount+", "+proposalThreshold+")");
-
+            "GovernorInsufficientProposerVotes(\""+this.stakingHolder.address+"\", "+votesAmountAfter+", "+proposalThreshold+")");
     });
 
     it("should work the full proposal lifecycle up to executed", async function () {
@@ -214,16 +232,21 @@ describe("TokamakGovernor basic functionality", async function () {
         const balancePrev = await this.ton.balanceOf(signers.admin.address)
         let holder_address = await this.stakingHolder.getAddress()
 
-        const balanceVoteToken = await tokamaktoken.balanceOf(holder_address)
-        const mintVotesAmount = proposalThreshold - balanceVoteToken
+        const balanceToken = await tokamaktoken.balanceOf(holder_address)
+        const mintAmount = proposalThreshold*proposalThreshold - balanceToken
+        console.log('mintAmount', ethers.formatEther(mintAmount) )
 
         let mintableAmount = await tokamaktoken.mintableAmount(holder_address)
-        // expect(mintableAmount).to.be.greaterThan(mintVotesAmount)
+        expect(mintableAmount).to.be.gte(ethers.toBigInt(mintAmount.toString())) //
 
-        await tokamaktoken.connect(this.stakingHolder).mint(mintVotesAmount);
+        await tokamaktoken.connect(this.stakingHolder).mint(mintAmount);
 
         const balanceOne = await tokamaktoken.balanceOf(this.stakingHolder.address);
-        expect(balanceOne).to.be.equal(mintVotesAmount);
+        expect(balanceOne).to.be.equal(mintAmount);
+        console.log('balance', ethers.formatEther(balanceOne))
+
+        let votesAmountPrev = await tokamaktoken.getVotes(this.stakingHolder.address)
+        console.log('votesAmount Before delegating', ethers.formatEther(votesAmountPrev))
 
         // getVotes
         let clock0  = await governor.clock();
@@ -233,6 +256,9 @@ describe("TokamakGovernor basic functionality", async function () {
 
         // getVotes
         let clock1  = await governor.clock();
+        let votesAmountAfter = await tokamaktoken.getVotes(this.stakingHolder.address)
+        console.log('votesAmount After delegating', ethers.formatEther(votesAmountAfter))
+        console.log('================')
 
         //===============================
         // agenda : mint 1000 ton to admin
@@ -295,7 +321,22 @@ describe("TokamakGovernor basic functionality", async function () {
 
         // getVotes
         expect(await governor.getVotes(this.stakingHolder.address, clock0)).to.be.eq(0)
-        expect(await governor.getVotes(this.stakingHolder.address, clock1)).to.be.eq(mintVotesAmount)
+        expect(await governor.getVotes(this.stakingHolder.address, clock1)).to.be.eq(
+            await tokamaktoken.sqrt(mintAmount))
+
+
+        let votesAmount = await tokamaktoken.getVotes(this.stakingHolder.address)
+        console.log('votesAmount', votesAmount)
+
+
+        let getPastVotes = await tokamaktoken.getPastVotes(this.stakingHolder.address, clock1)
+        console.log('getPastVotes', getPastVotes)
+
+        let getPastVoteTotal = await governor.getPastVoteTotal(clock1)
+        console.log('getPastVoteTotal', getPastVoteTotal)
+
+        let quorum = await governor.quorum(clock1)
+        console.log('quorum', quorum)
 
         //try to queue before is executable and fails
 
@@ -375,7 +416,7 @@ describe("TokamakGovernor basic functionality", async function () {
         let holder_address = await this.stakingHolder.getAddress()
 
         // initial mint
-        const mintVotesAmount = proposalThreshold
+        const mintVotesAmount = proposalThreshold*proposalThreshold
         await tokamaktoken.connect(this.stakingHolder).mint(mintVotesAmount);
 
         const balanceOne = await tokamaktoken.balanceOf(this.stakingHolder.address);
@@ -454,7 +495,7 @@ describe("TokamakGovernor basic functionality", async function () {
         let holder_address = await this.stakingHolder.getAddress()
 
         // initial mint
-        const mintVotesAmount = proposalThreshold
+        const mintVotesAmount = proposalThreshold*proposalThreshold
         await tokamaktoken.connect(this.stakingHolder).mint(mintVotesAmount);
 
         const balanceOne = await tokamaktoken.balanceOf(this.stakingHolder.address);
@@ -526,7 +567,7 @@ describe("TokamakGovernor basic functionality", async function () {
 
         // initial mint
         const amountToMint = 10000n;
-        const mintVotesAmount = proposalThreshold
+        const mintVotesAmount = proposalThreshold*proposalThreshold
         await tokamaktoken.connect(this.stakingHolder).mint(mintVotesAmount);
 
         const balanceOne = await tokamaktoken.balanceOf(this.stakingHolder.address);
