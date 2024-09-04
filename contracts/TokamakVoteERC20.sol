@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import "./LibUtil.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PausableUpgradeable.sol";
@@ -167,4 +168,16 @@ contract TokamakVoteERC20 is
         // return false;
     }
 
+    function _getVotingUnits(address account) internal view override returns (uint256 amount) {
+        // return balanceOf(account);
+        amount = LibUtil.sqrt(balanceOf(account));
+    }
+
+    function sqrtV2(uint y) public pure returns (uint z) {
+       return LibUtil.sqrtV2(y);
+    }
+
+    function sqrt(uint256 x) public pure returns (uint256 result) {
+       return LibUtil.sqrtV2(x);
+    }
 }

@@ -2,6 +2,8 @@
 // Compatible with OpenZeppelin Contracts ^5.0.0
 pragma solidity ^0.8.20;
 
+import "./LibUtil.sol";
+
 import "@openzeppelin/contracts-upgradeable/governance/GovernorUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorSettingsUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorCountingSimpleUpgradeable.sol";
@@ -72,14 +74,6 @@ contract TokamakGovernor is
         return super.votingPeriod();
     }
 
-    function quorum(uint256 blockNumber)
-        public
-        view
-        override(GovernorUpgradeable, GovernorVotesQuorumFractionUpgradeable)
-        returns (uint256)
-    {
-        return super.quorum(blockNumber);
-    }
 
     function state(uint256 proposalId)
         public
@@ -188,4 +182,15 @@ contract TokamakGovernor is
         return super._executor();
     }
 
+    function quorum(uint256 timepoint) public view override(GovernorUpgradeable,GovernorVotesQuorumFractionUpgradeable) returns (uint256) {
+        return (_getPastVoteTotal(timepoint)  * quorumNumerator(timepoint)*1e18) / quorumDenominator() / 1e18;
+    }
+
+    function getPastVoteTotal(uint256 timepoint) public view returns (uint256) {
+        return  _getPastVoteTotal(timepoint);
+    }
+
+    function _getPastVoteTotal(uint256 timepoint) internal view returns (uint256) {
+        return LibUtil.sqrt(token().getPastTotalSupply(timepoint));
+    }
 }
