@@ -332,7 +332,7 @@ describe("TokamakGovernor basic functionality", async function () {
         let getPastVotes = await tokamaktoken.getPastVotes(this.stakingHolder.address, clock1)
         console.log('getPastVotes', getPastVotes)
 
-        let getPastVoteTotal = await governor.getPastVoteTotal(clock1)
+        let getPastVoteTotal = await tokamaktoken.getPastTotalSupply()
         console.log('getPastVoteTotal', getPastVoteTotal)
 
         let quorum = await governor.quorum(clock1)

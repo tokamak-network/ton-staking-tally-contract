@@ -127,11 +127,37 @@ contract TokamakVoteERC20 is
         return super.totalSupply();
     }
 
+    /**
+     * @dev Move voting power when tokens are transferred.
+     *
+     * Emits a {IVotes-DelegateVotesChanged} event.
+     */
     function _update(address from, address to, uint256 value)
         internal
         override(ERC20Upgradeable, ERC20PausableUpgradeable, ERC20VotesUpgradeable)
     {
-        return super._update(from, to, value);
+        uint256 diffVotes;
+        uint256 oldBalance;
+
+        if (from == address(0)) {
+            oldBalance = balanceOf(to);
+            diffVotes = sqrt(oldBalance+value) - sqrt(oldBalance);
+        } else if (to == address(0)) {
+            oldBalance = balanceOf(from);
+            require(oldBalance >= value);
+            diffVotes = sqrt(oldBalance) - sqrt(oldBalance-value);
+        }
+
+        ERC20Upgradeable._update(from, to, value);
+        if (from == address(0)) {
+            uint256 supply = totalSupply();
+            uint256 cap = _maxSupply();
+            if (supply > cap) {
+                revert ERC20ExceededSafeSupply(supply, cap);
+            }
+        }
+
+        if (diffVotes != 0) _transferVotingUnits(from, to, diffVotes);
     }
 
     /**
@@ -168,16 +194,24 @@ contract TokamakVoteERC20 is
         // return false;
     }
 
+    function getPastTotalSupply() external view returns (uint256) {
+        return _getTotalSupply();
+    }
+
     function _getVotingUnits(address account) internal view override returns (uint256 amount) {
         // return balanceOf(account);
         amount = LibUtil.sqrt(balanceOf(account));
     }
 
-    function sqrtV2(uint y) public pure returns (uint z) {
+    function _getVotingUnits(uint256 amount_) internal pure returns (uint256 amount) {
+        amount = LibUtil.sqrt(amount_);
+    }
+
+    function sqrtV2(uint256 y) public pure returns (uint256 z) {
        return LibUtil.sqrtV2(y);
     }
 
     function sqrt(uint256 x) public pure returns (uint256 result) {
-       return LibUtil.sqrtV2(x);
+       return LibUtil.sqrt(x);
     }
 }

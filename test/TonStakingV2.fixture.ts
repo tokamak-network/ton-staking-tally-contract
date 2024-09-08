@@ -142,9 +142,11 @@ export async function tonStakingV2ContractsFixture(): Promise<{
     // TIMELOCK CONTRACT
     const TimelockController:TokamakTimelockController__factory =  (await ethers.getContractFactory("contracts/TokamakTimelockController.sol:TokamakTimelockController")) as TokamakTimelockController__factory
     // GOVERNOR CONTRACT
+    // const TokamakGovernor:TokamakGovernor__factory = (
+    //     await ethers.getContractFactory("contracts/TokamakGovernor.sol:TokamakGovernor",
+    //     { libraries: { "LibUtil" : utilsDep.target} })) as TokamakGovernor__factory
     const TokamakGovernor:TokamakGovernor__factory = (
-        await ethers.getContractFactory("contracts/TokamakGovernor.sol:TokamakGovernor",
-        { libraries: { "LibUtil" : utilsDep.target} })) as TokamakGovernor__factory
+        await ethers.getContractFactory("contracts/TokamakGovernor.sol:TokamakGovernor")) as TokamakGovernor__factory
 
     const tokamaktoken = await upgrades.deployProxy(
         TokamakVoteERC20,

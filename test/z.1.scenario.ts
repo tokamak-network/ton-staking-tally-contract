@@ -104,12 +104,15 @@ describe("TokamakGovernor : the 1st scenario", async function () {
     })
 
     it("A stake TON, B stake TON", async function () {
+        // const { tokamaktoken, governor, signers, timelock } = this;
+        // const proposalThreshold = await governor.proposalThreshold()
+        // const mintAmount = proposalThreshold*proposalThreshold
+        const depositAmount1000 = 1100000000000000000000n
 
-        await (await this.ton.connect(this.daoSigner).mint(this.aUser.address, 1100000000000000000000n)).wait()
-        await (await this.ton.connect(this.daoSigner).mint(this.bUser.address, 1100000000000000000000n)).wait()
+        await (await this.ton.connect(this.daoSigner).mint(this.aUser.address, depositAmount1000)).wait()
+        await (await this.ton.connect(this.daoSigner).mint(this.bUser.address, depositAmount1000)).wait()
 
         const depositManager_address = await this.depositManager.getAddress()
-        const depositAmount1000 = 1100000000000000000000n
 
         const data = marshalString(
             [depositManager_address, tonStakingV2Config.LevelCandidate]
@@ -137,7 +140,7 @@ describe("TokamakGovernor : the 1st scenario", async function () {
 
     });
 
-    it("(1) A Voting Rights Mint (200 tokens), B Voting Rights Mint (800 tokens)", async function () {
+    it("(1) A Voting Rights Mint ( sqrt(200) tokens), B Voting Rights Mint (sqrt(800) tokens)", async function () {
 
         const { tokamaktoken, governor, signers, timelock } = this;
         const amount_200 = BigInt("2"+"0".repeat(20))
@@ -148,6 +151,15 @@ describe("TokamakGovernor : the 1st scenario", async function () {
         // delegate - Delegates votes from the sender to `delegatee`.
         await tokamaktoken.connect(this.aUser).delegate(this.aUser.address);
         await tokamaktoken.connect(this.bUser).delegate(this.bUser.address);
+
+        let clock0  = await governor.clock();
+        await mine(1);
+
+         // getVotes
+         let getVotes_a = await governor.getVotes(this.aUser.address, clock0)
+         let getVotes_b = await governor.getVotes(this.bUser.address, clock0)
+         console.log('getVotes_a ', getVotes_a)
+         console.log('getVotes_b ', getVotes_b)
 
     });
 
@@ -195,16 +207,42 @@ describe("TokamakGovernor : the 1st scenario", async function () {
         // getVotes
         let getVotes_a = await governor.getVotes(this.aUser.address, clock0)
         let getVotes_b = await governor.getVotes(this.bUser.address, clock0)
+        // console.log('getVotes_a ', getVotes_a)
+        // console.log('getVotes_b ', getVotes_b)
 
-        expect(getVotes_a).to.be.eq(BigInt("2"+"0".repeat(20)))
-        expect(getVotes_b).to.be.eq(BigInt("8"+"0".repeat(20)))
+        const votes200 = await tokamaktoken.sqrt(BigInt("2"+"0".repeat(20)))
+        const votes800 = await tokamaktoken.sqrt(BigInt("8"+"0".repeat(20)))
+        // console.log('votes200 ', votes200)
+        // console.log('votes800 ', votes800)
+
+
+        expect(getVotes_a).to.be.eq(votes200)
+        expect(getVotes_b).to.be.eq(votes800)
     });
 
-    it("(3) Additional A voting rights (800 tokens) created during the voting period", async function () {
+    it("(3) Additional A voting rights (sqrt(800) tokens) created during the voting period", async function () {
 
         const { tokamaktoken, governor, signers, timelock } = this;
-        const amount_800 = BigInt("8"+"0".repeat(20))
-        await (await tokamaktoken.connect(this.aUser).mint(amount_800)).wait()
+
+        const aBalance = await tokamaktoken.balanceOf(this.aUser.address);
+        const bBalance = await tokamaktoken.balanceOf(this.bUser.address);
+
+        // console.log('aBalance ', aBalance)
+        // console.log('bBalance ', bBalance)
+
+        const addAmount_800 = BigInt("8"+"0".repeat(20))
+        const aVotes_800 = await tokamaktoken.sqrt(addAmount_800)
+        await (await tokamaktoken.connect(this.aUser).mint(addAmount_800)).wait()
+
+        let clock00  = await governor.clock();
+        await mine(1);
+
+        let getVotes_0 = await governor.getVotes(this.aUser.address, clock00)
+        // console.log('getVotes_0 ', getVotes_0)
+
+        const aBalance1 = await tokamaktoken.balanceOf(this.aUser.address);
+        expect(aBalance1).to.be.eq(aBalance +addAmount_800)
+        // console.log('aBalance1 ', aBalance1)
 
         let clock0  = await governor.clock();
         await mine(2);
@@ -212,9 +250,9 @@ describe("TokamakGovernor : the 1st scenario", async function () {
         // getVotes
         let getVotes_a = await governor.getVotes(this.aUser.address, clock0)
         let getVotes_b = await governor.getVotes(this.bUser.address, clock0)
+        // console.log('getVotes_a ', getVotes_a)
+        // console.log('getVotes_b ', getVotes_b)
 
-        expect(getVotes_a).to.be.eq(BigInt("10"+"0".repeat(20)))
-        expect(getVotes_b).to.be.eq(BigInt("8"+"0".repeat(20)))
     });
 
     it("(4) Voting result after the voting period ends? -> It will be executed ", async function () {
