@@ -4,19 +4,20 @@ import { ethers, upgrades, network} from "hardhat";
 import { Signer, Contract } from 'ethers'
 import { expect } from './shared/expect'
 import { encodeFunctionSignature } from 'web3-eth-abi'
-import { tonStakingV2Config } from "../tostakingv2.config"
+import { tonStakingV2Config } from "../tostakingv2.sepolia.config"
 import { getExpectedContractAddress } from "../helpers/expected_contract";
 
 import { type TokamakGovernor, type TokamakTimelockController, type TokamakVoteERC20, } from "../typechain-types";
 import { config } from "../deploy.tokamak.tally.config"
-import { TokamakTimelockController__factory, TokamakVoteERC20__factory, TokamakGovernor__factory } from "../typechain-types/factories/contracts";
+import { TokamakTimelockController__factory, TokamakVoteERC20__factory, TokamakGovernorV1__factory } from "../typechain-types/factories/contracts";
+import { TokamakGovernorV1 } from "../typechain-types/contracts/TokamakGovernorV1";
 
 import { SeigManagerV1_3 } from "./types/contracts/stake/managers/SeigManagerV1_3.sol/SeigManagerV1_3";
-import { SeigManagerProxy } from "./types/contracts/stake/managers/SeigManagerProxy";
+
 import { DepositManager } from "./types/contracts/stake/managers/DepositManager.sol/DepositManager";
 import { SeigManagerV1_2 } from "./types/contracts/stake/managers/SeigManagerV1_2.sol";
 import { SeigManagerV1_Vote } from "./types/contracts/stake/managers/SeigManagerV1_Vote.sol";
-
+import { SeigManagerProxy } from "./types/contracts/stake/managers/SeigManagerProxy";
 import DepositManager_Json from './abi/DepositManager.json'
 import SeigManagerProxy_Json from './abi/SeigManagerProxy.json'
 import SeigManagerV1_2_Json from './abi/SeigManagerV1_2.json'
@@ -25,8 +26,9 @@ import DAOCommitteeAddV1_1_Json from './abi/DAOCommitteeAddV1_1.json'
 import DAOCommitteeProxy_Json from './abi/DAOCommitteeProxy.json'
 import TON_Json from './abi/TON.json'
 import TOS_Json from './abi/TOS.json'
+import TokamakVoteERC20_Json from './abi/TokamakVoteERC20.json'
 
-const daoOwnerAddress = "0xB4983DA083A5118C903910DB4f5a480B1D9f3687"
+const daoOwnerAddress = "0x757DE9c340c556b56f62eFaE859Da5e08BAAE7A2"
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
 
 export async function tonStakingV2ContractsFixture(): Promise<{
@@ -61,6 +63,11 @@ export async function tonStakingV2ContractsFixture(): Promise<{
     const depositManager_address = tonStakingV2Config.DepositManagerProxy;
     const dao_address = tonStakingV2Config.DAOCommitteeProxy;
 
+    console.log('seigManager_address', seigManager_address)
+    console.log('depositManager_address', depositManager_address)
+    console.log('dao_address', dao_address)
+
+
     //CONTRACT
     const depositManager = (new ethers.Contract(depositManager_address,  DepositManager_Json.abi, deployerSigner)) as DepositManager;
     const seigManagerProxy = (new ethers.Contract(seigManager_address,  SeigManagerProxy_Json.abi, deployerSigner)) as SeigManagerProxy;
@@ -69,11 +76,14 @@ export async function tonStakingV2ContractsFixture(): Promise<{
     const ton = new ethers.Contract(tonStakingV2Config.TON, TON_Json.abi, deployerSigner);
     const tos = new ethers.Contract(tonStakingV2Config.TOS, TOS_Json.abi, deployerSigner);
 
+    console.log('seigManagerProxy', await seigManagerProxy.getAddress())
+    console.log('seigManager', await seigManager.getAddress())
+
     //-- dao
-    const dao_Contract = await (new ethers.ContractFactory(DAOCommitteeAddV1_1_Json.abi, DAOCommitteeAddV1_1_Json.bytecode, deployerSigner)).connect(deployerSigner).deploy() ;
-    // console.log('dao_Contract', dao_Contract.target)
-    await (await daoProxy.connect(daoOwner).upgradeTo(dao_Contract.target)).wait()
-    // console.log('upgradeTo')
+    // const dao_Contract = await (new ethers.ContractFactory(DAOCommitteeAddV1_1_Json.abi, DAOCommitteeAddV1_1_Json.bytecode, deployerSigner)).connect(deployerSigner).deploy() ;
+    // // console.log('dao_Contract', dao_Contract.target)
+    // await (await daoProxy.connect(daoOwner).upgradeTo(dao_Contract.target)).wait()
+    // // console.log('upgradeTo')
     const dao = new ethers.Contract(dao_address, DAOCommitteeAddV1_1_Json.abi, deployerSigner);
 
     // add functions related to vote
@@ -83,35 +93,36 @@ export async function tonStakingV2ContractsFixture(): Promise<{
     const seigManagerV1_Vote_address = seigManagerV1_Vote_Contract.target
     // console.log('seigManagerV1_Vote_address', seigManagerV1_Vote_address)
 
+    // ===================
     // add functions
-    const index = 1;
-    expect(await seigManagerProxy.implementation2(index)).to.be.eq(ZERO_ADDRESS)
+    // const index = 1;
+    // expect(await seigManagerProxy.implementation2(index)).to.be.eq(ZERO_ADDRESS)
 
-    const selector1 = encodeFunctionSignature("increaseVoteToken(address,uint256)");
-    const selector2 = encodeFunctionSignature("decreaseVoteToken(address,uint256)");
-    const selector3 = encodeFunctionSignature("onWithdraw(address,address,uint256)");
-    const selector4 = encodeFunctionSignature("availableRequestWithdraw(address)");
-    const selector5 = encodeFunctionSignature("setVoteToken(address)");
-    const selector6 = encodeFunctionSignature("votes(address)");
-    const selector7 = encodeFunctionSignature("voteToken()");
-    const selector8 = encodeFunctionSignature("totalVotes()");
+    // const selector1 = encodeFunctionSignature("increaseVoteToken(address,uint256)");
+    // const selector2 = encodeFunctionSignature("decreaseVoteToken(address,uint256)");
+    // const selector3 = encodeFunctionSignature("onWithdraw(address,address,uint256)");
+    // const selector4 = encodeFunctionSignature("availableRequestWithdraw(address)");
+    // const selector5 = encodeFunctionSignature("setVoteToken(address)");
+    // const selector6 = encodeFunctionSignature("votes(address)");
+    // const selector7 = encodeFunctionSignature("voteToken()");
+    // const selector8 = encodeFunctionSignature("totalVotes()");
 
-    let functionBytecodes = [selector1, selector2, selector3, selector4, selector5, selector6, selector7, selector8];
+    // let functionBytecodes = [selector1, selector2, selector3, selector4, selector5, selector6, selector7, selector8];
 
-    console.log(functionBytecodes)
+    // console.log(functionBytecodes)
 
     // mainnet
-    await (await dao.connect(daoOwner).setTargetSetImplementation2(
-        seigManager_address,
-        seigManagerV1_Vote_address,
-        index, true)).wait();
+    // await (await dao.connect(daoOwner).setTargetSetImplementation2(
+    //     seigManager_address,
+    //     seigManagerV1_Vote_address,
+    //     index, true)).wait();
 
-    // console.log('setTargetSetImplementation2 end')
+    // // console.log('setTargetSetImplementation2 end')
 
-    await (await dao.connect(daoOwner).setTargetSetSelectorImplementations2(
-        seigManager_address,
-        functionBytecodes,
-        seigManagerV1_Vote_address)).wait()
+    // await (await dao.connect(daoOwner).setTargetSetSelectorImplementations2(
+    //     seigManager_address,
+    //     functionBytecodes,
+    //     seigManagerV1_Vote_address)).wait()
 
     // sepolia
     // await (await seigManagerProxy.connect(daoOwner).setImplementation2(
@@ -122,12 +133,11 @@ export async function tonStakingV2ContractsFixture(): Promise<{
     //     functionBytecodes,
     //     seigManagerV1_Vote_Contract.address)).wait()
 
-    expect(await seigManagerProxy.implementation2(index)).to.be.eq(seigManagerV1_Vote_address)
-    expect(await seigManagerProxy.getSelectorImplementation2(selector1)).to.be.eq(seigManagerV1_Vote_address)
-    expect(await seigManagerProxy.getSelectorImplementation2(selector2)).to.be.eq(seigManagerV1_Vote_address)
-    expect(await seigManagerProxy.getSelectorImplementation2(selector3)).to.be.eq(seigManagerV1_Vote_address)
-    expect(await seigManagerProxy.getSelectorImplementation2(selector4)).to.be.eq(seigManagerV1_Vote_address)
-
+    // expect(await seigManagerProxy.implementation2(index)).to.be.eq(seigManagerV1_Vote_address)
+    // expect(await seigManagerProxy.getSelectorImplementation2(selector1)).to.be.eq(seigManagerV1_Vote_address)
+    // expect(await seigManagerProxy.getSelectorImplementation2(selector2)).to.be.eq(seigManagerV1_Vote_address)
+    // expect(await seigManagerProxy.getSelectorImplementation2(selector3)).to.be.eq(seigManagerV1_Vote_address)
+    // expect(await seigManagerProxy.getSelectorImplementation2(selector4)).to.be.eq(seigManagerV1_Vote_address)
 
     //=========================== ==========
     // TOKEN CONTRACT
@@ -135,22 +145,25 @@ export async function tonStakingV2ContractsFixture(): Promise<{
     // TIMELOCK CONTRACT
     const TimelockController:TokamakTimelockController__factory =  (await ethers.getContractFactory("contracts/TokamakTimelockController.sol:TokamakTimelockController")) as TokamakTimelockController__factory
     // GOVERNOR CONTRACT
-    const TokamakGovernor:TokamakGovernor__factory = (await ethers.getContractFactory("contracts/TokamakGovernor.sol:TokamakGovernor")) as TokamakGovernor__factory
+    // const TokamakGovernor:TokamakGovernorV1 = (await ethers.getContractFactory("contracts/TokamakGovernorV1.sol:TokamakGovernorV1")) as TokamakGovernorV1
 
-    const tokamaktoken = await upgrades.deployProxy(
-        TokamakVoteERC20,
-        [
-            config.token.name,
-            config.token.symbol,
-            adminSigner.address, // admin
-            adminSigner.address, // pauser
-            adminSigner.address, // minter
-            seigManager_address // seigManager
-        ]
-    );
-    await tokamaktoken.waitForDeployment();
+    // const tokamaktoken = await upgrades.deployProxy(
+    //     TokamakVoteERC20,
+    //     [
+    //         config.token.name,
+    //         config.token.symbol,
+    //         adminSigner.address, // admin
+    //         adminSigner.address, // pauser
+    //         adminSigner.address, // minter
+    //         seigManager_address // seigManager
+    //     ]
+    // );
+    // await tokamaktoken.waitForDeployment();
     // console.log('token deployed to:', await tokamaktoken.getAddress());
-    const token_address = await tokamaktoken.getAddress()
+    // const token_address = await tokamaktoken.getAddress()
+
+    const token_address = "0xE9394DAE067eF993Bb79d98917799CfA48BC83F0"
+    const tokamaktoken = new ethers.Contract(token_address, TokamakVoteERC20_Json.abi, deployerSigner);
 
     // const a0 = await getExpectedContractAddress(deployerSigner, 0);
     // console.log('a0', a0)
@@ -164,45 +177,37 @@ export async function tonStakingV2ContractsFixture(): Promise<{
     // console.log('a4', a4)
 
     // npx hardhat test 으로 테스트할때, 아래 파라미터를 0 , 1 로 수정해야 함.
-    let timelock_address = await getExpectedContractAddress(deployerSigner, 1);
-    // console.log('timelock_address', timelock_address)
-    let governance_address = await getExpectedContractAddress(deployerSigner,3);
-    // console.log('governance_address', governance_address)
+    let timelock_address = await getExpectedContractAddress(deployerSigner, 0);
+    console.log('timelock_address', timelock_address)
+    let governance_address = await getExpectedContractAddress(deployerSigner,1);
+    console.log('governance_address', governance_address)
 
     const admin_address = governance_address;
-
-    const timelock = await upgrades.deployProxy(
-        TimelockController,
-        [
-            config.timelock.minDelay,
-            [admin_address, timelock_address],
-            [admin_address, timelock_address],
-            timelock_address,
-        ]
+    const timelock_dep = await ethers.getContractFactory("TokamakTimelockControllerV1");
+    const timelock = await timelock_dep.deploy(
+        config.timelock.minDelay,
+        [admin_address, timelock_address],
+        [admin_address, timelock_address],
+        timelock_address
     );
     await timelock.waitForDeployment();
-    // console.log('timelock deployed to:', await timelock.getAddress());
+    console.log('timelock deployed to:', await timelock.getAddress());
     if(timelock_address != await timelock.getAddress())  console.log('check!!!: timelock address');
 
-    const governor = await upgrades.deployProxy(
-        TokamakGovernor,
-        [
-            config.governor.name,
-            token_address,
-            timelock_address,
-            config.governor.votingDelay,
-            config.governor.votingPeriod,
-            config.governor.proposalThreshold,
-            config.governor.quorumNumerator,
-            config.governor.voteExtension,
-        ]
+    const governor_dep = await ethers.getContractFactory("TokamakGovernorV1");
+    const governor = await governor_dep.deploy(
+        token_address,
+        timelock_address
     );
+
     await governor.waitForDeployment();
-    // console.log('governor deployed to:', await governor.getAddress());
+
+    console.log('governor deployed to:', await governor.getAddress());
+
     if(governance_address != await governor.getAddress())  console.log('check!!!: governance_address address');
 
     //=================
-    await (await dao.connect(daoOwner).setVoteToken(seigManager_address, token_address)).wait();
+    // await (await dao.connect(daoOwner).setVoteToken(seigManager_address, token_address)).wait();
 
     const seigManagerV1_Vote = (new ethers.Contract(seigManager_address, SeigManagerV1_Vote_Json.abi, deployerSigner)) as SeigManagerV1_Vote;
 

@@ -16,7 +16,7 @@ contract TokamakTimelockController is Initializable, TimelockControllerUpgradeab
         address[] memory executors,
         address admin
     )
-        initializer public
+        initializer public override
     {
         __TimelockController_init(minDelay, proposers, executors, admin);
     }
