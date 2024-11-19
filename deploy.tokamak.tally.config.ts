@@ -14,10 +14,10 @@ export const config:any = {
     // Governor
     governor: {
       name: "Tokamak Governor DAO",
-      // 7200 is 24 hours (assuming 12 seconds per block)
-      votingDelay: 7200,
+      // 7200 is 24 hours (assuming 12 seconds per block) , 1 hour = 300
+      votingDelay: 300,
       // 50400 is 7 days (assuming 12 seconds per block)
-      votingPeriod: 50400,
+      votingPeriod: 300,
       // Quorum numerator to denominator of 100
       quorumNumerator: 4,
       // Threshold to be able to propose
