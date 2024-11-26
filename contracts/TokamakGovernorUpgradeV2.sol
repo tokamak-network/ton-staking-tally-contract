@@ -35,7 +35,7 @@ contract TokamakGovernorUpgradeV2 is
         uint256 quorumNumeratorValue,
         uint48 initialVoteExtension
     )
-        reinitializer(2) public
+        reinitializer(3) public
     {
         // __Governor_init(name);
         // __GovernorSettings_init(7200 /* 1 day */, 50400 /* 1 week */, 0);

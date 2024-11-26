@@ -7,7 +7,7 @@ export const config:any = {
     },
     // Timelock
     timelock: {
-      minDelay: 86400, // 12 days (assuming 12 seconds per block)
+      minDelay: 300, //86400, // 12 days (assuming 12 seconds per block)
     },
     // Set clockMode to true for timestamp mode, false for block number mode
     clockMode: false,
@@ -24,7 +24,7 @@ export const config:any = {
       // 100 TON
       proposalThreshold: 100000000000000000000n, // Set a non-zero value to prevent proposal spam.
       // Vote extension: if a late quorum is reached, how long should it be extended?
-      voteExtension: 7200, // 7200 is 24 hours (assuming 12 seconds per block)
+      voteExtension: 150, //  7200, // 7200 is 24 hours (assuming 12 seconds per block)
     },
     // First Mint is used to mint the initial tokens for this governance
     // It must be higher than the proposalThreshold
