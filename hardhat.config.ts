@@ -30,8 +30,8 @@ const config: HardhatUserConfig = {
         // url: `${process.env.ETHEREUM_URL}`,
         // blockNumber: 20366882
         url: `${process.env.SEPOLIA_URL}`,
-        // blockNumber: 7066429,
-        blockNumber:7106970
+        blockNumber: 7174230,
+        // blockNumber:7106970
       },
       // deploy: ['deploy-sepolia']
     },

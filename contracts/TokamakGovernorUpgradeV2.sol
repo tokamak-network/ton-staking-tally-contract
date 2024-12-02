@@ -29,27 +29,31 @@ contract TokamakGovernorUpgradeV2 is
     }
 
     function initialize(
+        string memory name,
+        IVotes _token,
+        TimelockControllerUpgradeable _timelock,
         uint48 initialVotingDelay,
         uint32 initialVotingPeriod,
         uint256 initialProposalThreshold,
         uint256 quorumNumeratorValue,
         uint48 initialVoteExtension
     )
-        reinitializer(3) public
+        reinitializer(4) public
     {
-        // __Governor_init(name);
+        __Governor_init(name);
         // __GovernorSettings_init(7200 /* 1 day */, 50400 /* 1 week */, 0);
         __GovernorSettings_init(initialVotingDelay, initialVotingPeriod, initialProposalThreshold);
         __GovernorCountingSimple_init();
         // __GovernorStorage_init();
-        // __GovernorVotes_init(_token);
+        __GovernorVotes_init(_token);
         // __GovernorVotesQuorumFraction_init(4);
         __GovernorVotesQuorumFraction_init(quorumNumeratorValue);
         __GovernorPreventLateQuorum_init(initialVoteExtension);
-        // __GovernorTimelockControl_init(_timelock);
+        __GovernorTimelockControl_init(_timelock);
     }
 
     // The following functions are overrides required by Solidity.
+
 
     function votingDelay()
         public

@@ -39,7 +39,9 @@ async function main() {
 
 	const encodedData = tokamakGovernorUpgradeV2.interface.encodeFunctionData(
 		'initialize',
-		[
+		[	config.governor.name,
+            token_address,
+            timelock_address,
 			config.governor.votingDelay,
 			config.governor.votingPeriod,
 			config.governor.proposalThreshold,
