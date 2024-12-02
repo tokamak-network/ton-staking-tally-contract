@@ -275,9 +275,9 @@ export async function DaoTallyContractsFixture(): Promise<{
     const depositManager_address = tonStakingV2Config.DepositManagerProxy;
     const dao_address = tonStakingV2Config.DAOCommitteeProxy;
 
-    console.log('seigManager_address', seigManager_address)
-    console.log('depositManager_address', depositManager_address)
-    console.log('dao_address', dao_address)
+    // console.log('seigManager_address', seigManager_address)
+    // console.log('depositManager_address', depositManager_address)
+    // console.log('dao_address', dao_address)
 
 
     //CONTRACT
